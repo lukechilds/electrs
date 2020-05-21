@@ -5,7 +5,6 @@ use std::io;
 use std::net::SocketAddr;
 use std::thread;
 use std::time::Duration;
-use sysconf;
 use tiny_http;
 
 pub use prometheus::{
@@ -112,8 +111,7 @@ fn parse_stats() -> Result<Stats> {
         fs::read_to_string("/proc/self/stat").chain_err(|| "failed to read /proc/self/stat")?;
     let parts: Vec<&str> = value.split_whitespace().collect();
     let page_size = page_size::get() as u64;
-    let ticks_per_second = sysconf::raw::sysconf(sysconf::raw::SysconfVariable::ScClkTck)
-        .expect("failed to get _SC_CLK_TCK") as f64;
+    let ticks_per_second = Ok(Stats { utime: 0, rss: 0, fds: 0, })
 
     let parse_part = |index: usize, name: &str| -> Result<u64> {
         Ok(parts
